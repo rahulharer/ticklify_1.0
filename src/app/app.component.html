@@ -1,0 +1,205 @@
+<div class="container-fluid" style="background: url('https://www.example.com/tech-background.jpg') no-repeat center center fixed; background-size: cover;">
+  <!-- Navbar with Logo and Title -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-transparent shadow-lg">
+    <div class="container">
+      <a class="navbar-brand fs-2 text-light" href="#">
+        <img src="/src/assets/images/ticket.jpg" alt="Logo" class="me-2" style="width: 50px; height: 50px;">
+        <strong>Support Ticket System</strong>
+      </a>
+      <button class="btn btn-danger btn-lg" (click)="showCreateForm = !showCreateForm">
+        <i class="fas fa-plus"></i> <span class="fs-4">New Ticket</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Ticket Creation Section -->
+  <div class="container mt-5">
+    <div class="card mb-4 shadow-lg" *ngIf="showCreateForm">
+      <div class="card-header bg-primary text-white">
+        <h5>{{ editingTicket ? 'Edit Ticket' : 'Create New Ticket' }}</h5>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="ticketForm" (ngSubmit)="onSubmit()">
+          <div class="row">
+            <!-- Left Column -->
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Title *</label>
+                <input type="text" class="form-control" formControlName="title" required>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select class="form-control" formControlName="status">
+                  <option value="Open">Open</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Resolved">Resolved</option>
+                  <option value="Closed">Closed</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Assignee Name</label>
+                <input type="text" class="form-control" formControlName="assigneeName">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Time Taken (minutes)</label>
+                <input type="number" class="form-control" formControlName="timeTaken">
+              </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Client Email</label>
+                <input type="email" class="form-control" formControlName="clientEmail">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Raised By</label>
+                <input type="text" class="form-control" formControlName="raisedByName">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Tags (comma separated)</label>
+                <input type="text" class="form-control" [value]="tagsInput" 
+                       (input)="onTagsInput($event)" 
+                       [attr.list]="'tagsList'">
+                <datalist id="tagsList">
+                  <option *ngFor="let tag of availableTags" [value]="tag">
+                </datalist>
+              </div>
+
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" formControlName="sendEmail" id="sendEmail">
+                <label class="form-check-label" for="sendEmail">Send Email to Client</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description and Attachments -->
+          <div class="mb-3">
+            <label class="form-label">Description *</label>
+            <textarea class="form-control" rows="4" formControlName="description" required></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Description Attachment</label>
+            <input type="file" class="form-control" (change)="onFileSelect($event, 'description')">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Steps to Resolve</label>
+            <textarea class="form-control" rows="4" formControlName="stepsToResolve"></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Steps Attachment</label>
+            <input type="file" class="form-control" (change)="onFileSelect($event, 'steps')">
+          </div>
+
+          <div class="d-flex gap-3 justify-content-between">
+            <button type="submit" class="btn btn-success btn-lg" [disabled]="!ticketForm.valid">
+              <i class="fas fa-save"></i> {{ editingTicket ? 'Update' : 'Create' }} Ticket
+            </button>
+            <button type="button" class="btn btn-secondary btn-lg" (click)="resetForm()">
+              <i class="fas fa-times"></i> Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Tickets List in Grid View -->
+    <div class="card shadow-lg">
+      <div class="card-header bg-primary text-white">
+        <h5>Support Tickets</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Assignee</th>
+                <th>Client Email</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let ticket of tickets">
+                <td>{{ ticket.id }}</td>
+                <td>{{ ticket.title }}</td>
+                <td>
+                  <span class="badge" [class]="getStatusClass(ticket.status)">
+                    {{ ticket.status }}
+                  </span>
+                </td>
+                <td>{{ ticket.assigneeName || 'Unassigned' }}</td>
+                <td>{{ ticket.clientEmail }}</td>
+                <td>{{ ticket.createdAt | date:'short' }}</td>
+                <td class="d-flex gap-2">
+                  <button class="btn btn-outline-primary btn-sm" (click)="editTicket(ticket)">
+                    <i class="fas fa-edit"></i> Edit
+                  </button>
+                  <button class="btn btn-outline-info btn-sm" (click)="viewTicket(ticket)">
+                    <i class="fas fa-eye"></i> View
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Ticket Detail Modal -->
+<div class="modal fade" id="ticketModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" *ngIf="selectedTicket">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">{{ selectedTicket.title }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Status:</strong> 
+              <span class="badge" [class]="getStatusClass(selectedTicket.status)">
+                {{ selectedTicket.status }}
+              </span>
+            </p>
+            <p><strong>Assignee:</strong> {{ selectedTicket.assigneeName || 'Unassigned' }}</p>
+            <p><strong>Time Taken:</strong> {{ selectedTicket.timeTaken || 0 }} minutes</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Client Email:</strong> {{ selectedTicket.clientEmail }}</p>
+            <p><strong>Raised By:</strong> {{ selectedTicket.raisedByName }}</p>
+            <p><strong>Created:</strong> {{ selectedTicket.createdAt | date:'full' }}</p>
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <strong>Description:</strong>
+          <p>{{ selectedTicket.description }}</p>
+        </div>
+
+        <div class="mb-3" *ngIf="selectedTicket.stepsToResolve">
+          <strong>Steps to Resolve:</strong>
+          <p>{{ selectedTicket.stepsToResolve }}</p>
+        </div>
+
+        <div class="mb-3" *ngIf="selectedTicket.tags && selectedTicket.tags.length > 0">
+          <strong>Tags:</strong>
+          <span *ngFor="let tag of selectedTicket.tags" class="badge bg-secondary me-1">{{ tag }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

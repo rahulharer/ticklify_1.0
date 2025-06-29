@@ -1,0 +1,26 @@
+/* Custom Styles for Ticket System */
+body {
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  .card {
+    border-radius: 12px;
+  }
+  
+  .card-header {
+    font-weight: bold;
+  }
+  
+  .table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+  }
+  
+  .table tbody tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .modal-content {
+    border-radius: 10px;
+  }
+  
