@@ -6,11 +6,12 @@ WORKDIR /app
 
 # Copy package files and install dependencies
 COPY package*.json ./
+RUN npm install -g @angular/cli
 RUN npm install
 
 # Copy the entire project and build the app
 COPY . .
-RUN npm run build --configuration production
+RUN ng build --configuration production
 
 # Stage 2: Serve the app with Nginx
 FROM nginx:alpine
@@ -19,7 +20,7 @@ FROM nginx:alpine
 RUN rm -rf /usr/share/nginx/html/*
 
 # Copy built Angular app from builder
-COPY --from=builder /app/dist/<your-app-name> /usr/share/nginx/html
+COPY --from=builder /app/dist/frontend/browser/ /usr/share/nginx/html
 
 # Optional: custom Nginx config for Angular routing
 COPY nginx.conf /etc/nginx/conf.d/default.conf

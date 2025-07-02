@@ -1,0 +1,6 @@
+log/*
+tmp/*
+*.log
+node_modules
+vendor/bundle
+
